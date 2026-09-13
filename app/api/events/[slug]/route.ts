@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { Event } from "@/database/event.model";
 import { connectToDatabase } from "@/lib/mongodb";
+import { getFeaturedEvent } from "@/lib/constants";
 
 type EventRouteContext = {
   params: Promise<{ slug: string }>;
@@ -19,6 +20,11 @@ export async function GET(_request: Request, { params }: EventRouteContext) {
       { message: "A valid event slug is required." },
       { status: 400 },
     );
+  }
+
+  const featuredEvent = getFeaturedEvent(normalizedSlug);
+  if (featuredEvent) {
+    return NextResponse.json({ event: featuredEvent }, { status: 200 });
   }
 
   try {

@@ -1,6 +1,6 @@
 import EventCard from "@/components/EventCard";
 import ExploreBtn from "@/components/ExploreBtn";
-import { EventDocument } from "@/database/event.model";
+import { events as featuredEvents } from "@/lib/constants";
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -9,7 +9,12 @@ const Page = async () => {
 
   const response = await fetch(`${BASE_URL}/api/events`);
 
-  const { events } = await response.json();
+  const { events = [] } = await response.json();
+  const featuredSlugs = new Set(featuredEvents.map((event) => event.slug));
+  const displayEvents = [
+    ...events.filter((event: { slug: string }) => !featuredSlugs.has(event.slug)),
+    ...featuredEvents,
+  ];
 
 
 
@@ -24,7 +29,7 @@ const Page = async () => {
         <h3>Features Events</h3>
 
         <ul className="events">
-          {events && events.length > 0 && events.map((event: EventDocument) => (
+          {displayEvents.map((event) => (
             <li key={event.title}>
               <EventCard {...event} />
             </li>
